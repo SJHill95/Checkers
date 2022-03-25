@@ -1,0 +1,55 @@
+import pygame
+from checkers.constants import WHITE, WIDTH, HEIGHT, SQUARE_SIZE, RED
+from checkers.game import Game
+from minimax.algorithm import minimax
+
+FPS = 60
+
+# Creates window
+WINDOW = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption('Checkers')
+
+def get_row_col_from_mouse(pos):
+    x, y = pos
+    row = y // SQUARE_SIZE
+    col = x // SQUARE_SIZE
+    return row, col
+
+def main():
+    run = True
+    clock = pygame.time.Clock()
+    game = Game(WINDOW)
+    
+    while run:
+        # Sets fps to 60
+        clock.tick(FPS)
+
+        if game.turn == WHITE:
+            value, new_board = minimax(game.get_board(), game.depth, WHITE, game, float('-inf'), float ('inf'))
+            game.ai_move(new_board)
+
+        #if game.turn == RED:
+            #value, new_board = minimax(game.get_board(), game.depth, RED, game, float('-inf'), float ('inf'))
+            #game.ai_move(new_board)
+
+        # Check to see if someone has won
+        if game.winner() != None:
+            print(game.winner())
+            run = False
+        
+        # Event to quit the game
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            
+            # Check if any mouse button pressed
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                row, col = get_row_col_from_mouse(pos)
+                game.select(row, col)
+                
+        game.update()
+
+    pygame.quit()
+
+main()
